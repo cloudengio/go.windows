@@ -16,34 +16,35 @@ import (
 func TestInaccessible(t *testing.T) {
 	tmpdir := t.TempDir()
 	filename := filepath.Join(tmpdir, "test-file.text")
+	fatal := func(err error) {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
 
 	// File.
-	if err := os.WriteFile(filename, []byte("hello world\n"), 0666); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := os.ReadFile(filename); err != nil {
-		t.Fatal(err)
-	}
-	if err := MakeInaccessibleToOwner(filename); err != nil {
-		t.Fatal(err)
-	}
-	_, err := os.ReadFile(filename)
+	err := os.WriteFile(filename, []byte("hello world\n"), 0600)
+	fatal(err)
+	_, err = os.ReadFile(filename)
+	fatal(err)
+	err = MakeInaccessibleToOwner(filename)
+	fatal(err)
+
+	_, err = os.ReadFile(filename)
 	if err == nil || !strings.Contains(err.Error(), "Access is denied") {
 		t.Errorf("missing or incorrect error: %v", err)
 	}
 
-	err = os.WriteFile(filename, []byte("hello world\n"), 0666)
+	err = os.WriteFile(filename, []byte("hello world\n"), 0600)
 	if err == nil || !strings.Contains(err.Error(), "Access is denied") {
 		t.Errorf("missing or incorrect error: %v", err)
 	}
 
-	if err := MakeAccessibleToOwner(filename); err != nil {
-		t.Fatal(err)
-	}
+	err = MakeAccessibleToOwner(filename)
+	fatal(err)
 
-	if _, err := os.ReadFile(filename); err != nil {
-		t.Fatal(err)
-	}
+	_, err = os.ReadFile(filename)
+	fatal(err)
 
 	// Directory.
 	dirname := filepath.Join(tmpdir, "test-dir", "sub-dir")
@@ -60,12 +61,8 @@ func TestInaccessible(t *testing.T) {
 		t.Errorf("missing or incorrect error: %v", err)
 	}
 
-	if err := MakeAccessibleToOwner(dirname); err != nil {
-		t.Fatal(err)
-	}
-
-	if _, err := os.ReadDir(dirname); err != nil {
-		t.Fatal(err)
-	}
-
+	err = MakeAccessibleToOwner(dirname)
+	fatal(err)
+	err = os.ReadDir(dirname)
+	fatal(err)
 }

@@ -24,8 +24,9 @@ func New() *T {
 
 // Run executes the supplied commands using PowerShell.
 func (p *T) Run(args ...string) (stdOut string, stdErr string, err error) {
-	args = append([]string{"-NoProfile", "-NonInteractive"}, args...)
-	cmd := exec.Command(p.ps, args...)
+	allArgs := []string{"-NoProfile", "-NonInteractive"}
+	allArgs = append(allArgs, args...)
+	cmd := exec.Command(p.ps, allArgs...)
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 	cmd.Stdout = stdout
