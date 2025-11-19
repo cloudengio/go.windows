@@ -63,6 +63,6 @@ func TestInaccessible(t *testing.T) {
 
 	err = MakeAccessibleToOwner(dirname)
 	fatal(err)
-	err = os.ReadDir(dirname)
+	_, err = os.ReadDir(dirname)
 	fatal(err)
 }
