@@ -8,6 +8,7 @@ package powershell
 
 import (
 	"bytes"
+	"context"
 	"os/exec"
 )
 
@@ -23,10 +24,10 @@ func New() *T {
 }
 
 // Run executes the supplied commands using PowerShell.
-func (p *T) Run(args ...string) (stdOut string, stdErr string, err error) {
+func (p *T) Run(ctx context.Context, args ...string) (stdOut string, stdErr string, err error) {
 	allArgs := []string{"-NoProfile", "-NonInteractive"}
 	allArgs = append(allArgs, args...)
-	cmd := exec.Command(p.ps, allArgs...) //nolint:gosec // G204
+	cmd := exec.CommandContext(ctx, p.ps, allArgs...) //nolint:gosec // G204
 	stdout := &bytes.Buffer{}
 	stderr := &bytes.Buffer{}
 	cmd.Stdout = stdout
