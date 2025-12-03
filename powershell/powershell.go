@@ -36,3 +36,20 @@ func (p *T) Run(ctx context.Context, args ...string) (stdOut string, stdErr stri
 	stdOut, stdErr = stdout.String(), stderr.String()
 	return
 }
+
+// KillByPath terminates all processes matching the supplied binary path.
+func (p *T) KillByPath(ctx context.Context, binaryPath string) (stdOut string, stdErr string, err error) {
+	args := []string{
+		"Get-Process", "chrome", "-ErrorAction", "SilentlyContinue", "|",
+		"Where-Object", "{", "$_.Path", "-eq", `"` + binaryPath + `"`, "}", "|",
+		"Stop-Process", "-Force"}
+
+	cmd := exec.CommandContext(ctx, p.ps, append([]string{"-NoProfile", "-NonInteractive"}, args...)...) //nolint:gosec // G204
+	stdout := &bytes.Buffer{}
+	stderr := &bytes.Buffer{}
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+	err = cmd.Run()
+	stdOut, stdErr = stdout.String(), stderr.String()
+	return
+}
