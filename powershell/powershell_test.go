@@ -16,7 +16,7 @@ import (
 
 func TestSimple(t *testing.T) {
 	ps := powershell.New()
-	stdout, stderr, err := ps.Run(`$env:username`)
+	stdout, stderr, err := ps.Run(t.Context(), `$env:username`)
 	if err != nil {
 		t.Fatalf("failed: %v %v", stderr, err)
 	}
